@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  SSMNamespace:
+    Type: String
+    Default: /openbrighton/main
+    Description: SSM namespace prefix for API Gateway parameters
+
+  ApiGatewayIdSSMPath:
+    Type: String
+    Default: /openbrighton/main/api-gateway/id
+    Description: SSM parameter path for the API Gateway ID
+
+  LambdaS3Bucket:
+    Type: String
+    Description: S3 bucket containing the Lambda deployment package
+
+  LambdaS3Key:
+    Type: String
+    Description: S3 key for the Lambda deployment package
+
+  LambdaHandler:
+    Type: String
+    Default: main
+    Description: Lambda handler (for Go, usually 'main')
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: LambdaCloudWatchLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+
+  GraphQLApiambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-GraphQLApi"
+      Handler: !Ref LambdaHandler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref LambdaS3Bucket
+        S3Key: !Ref LambdaS3Key
+      Runtime: provided.al2
+      Timeout: 30
+      MemorySize: 256
+
+  ApiGatewayLambdaIntegration:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: GraphQLApiLambda
+    Properties:
+      RestApiId:
+        Fn::Sub:
+          - '{{resolve:ssm:${ApiGatewayIdSSMPath}}}'
+          - { ApiGatewayIdSSMPath: { Ref: ApiGatewayIdSSMPath } }
+      StageName: prod
+
+Outputs:
+  LambdaFunctionArn:
+    Description: ARN of the deployed Lambda function
+    Value: !GetAtt GraphQLApiLambda.Arn
+
+  LambdaExecutionRoleArn:
+    Description: ARN of the Lambda execution role
+    Value: !GetAtt LambdaExecutionRole.Arn
