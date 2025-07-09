@@ -9,6 +9,7 @@ Parameters:
   ApiGatewayId:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /openbrighton/main/api-gateway/id
+    Description: SSM path of the api gateway id
 
   LambdaS3Bucket:
     Type: String
@@ -66,9 +67,9 @@ Resources:
       Timeout: 30
       MemorySize: 256
 
-  ApiGatewayLambdaIntegration:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn: LambdaFunction
-    Properties:
-      RestApiId: !Ref ApiGatewayId
-      StageName: !Ref StageName
+  # ApiGatewayLambdaIntegration:
+  #   Type: AWS::ApiGateway::Deployment
+  #   DependsOn: LambdaFunction
+  #   Properties:
+  #     RestApiId: !Ref ApiGatewayId
+  #     StageName: !Ref StageName
