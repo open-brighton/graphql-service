@@ -24,6 +24,11 @@ Parameters:
     Default: main
     Description: Lambda handler (for Go, usually 'main')
 
+  StageName:
+    Type: String
+    Default: v1
+    Description: API Gateway stage name
+
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -48,7 +53,7 @@ Resources:
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:*
 
-  GraphQLApiambda:
+  LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "${AWS::StackName}-GraphQLApi"
@@ -63,19 +68,10 @@ Resources:
 
   ApiGatewayLambdaIntegration:
     Type: AWS::ApiGateway::Deployment
-    DependsOn: GraphQLApiLambda
+    DependsOn: LambdaFunction
     Properties:
       RestApiId:
         Fn::Sub:
           - '{{resolve:ssm:${ApiGatewayIdSSMPath}}}'
           - { ApiGatewayIdSSMPath: { Ref: ApiGatewayIdSSMPath } }
-      StageName: prod
-
-Outputs:
-  LambdaFunctionArn:
-    Description: ARN of the deployed Lambda function
-    Value: !GetAtt GraphQLApiLambda.Arn
-
-  LambdaExecutionRoleArn:
-    Description: ARN of the Lambda execution role
-    Value: !GetAtt LambdaExecutionRole.Arn
+      StageName: !Ref StageName
