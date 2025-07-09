@@ -60,18 +60,33 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Set Variables
         run: |
           echo "STACK_NAME=openbrighton-main-graphql" >> $GITHUB_ENV
           echo "TEMPLATE=./infra/template.yml" >> $GITHUB_ENV
+          echo "BUCKET_NAME=openbrighton-main-graphql-artifacts" >> $GITHUB_ENV
+
+      - name: Create S3 bucket (idempotent)
+        run: |
+          aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" 2>&1 | grep -v 'BucketAlreadyOwnedByYou'
+
+      - name: Download Lambda artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-binary
+
+      - name: Upload Lambda binary to S3
+        run: |
+          aws s3 cp bootstrap s3://$BUCKET_NAME/bootstrap
 
       - name: Validate CloudFormation template
         run: aws cloudformation validate-template --template-body file://$TEMPLATE
 
       - name: Deploy CloudFormation stack
         run: |
-
           aws cloudformation deploy \
             --template-file $TEMPLATE \
             --stack-name $STACK_NAME \
-            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --parameter-overrides LambdaS3Bucket=$BUCKET_NAME LambdaS3Key=bootstrap
