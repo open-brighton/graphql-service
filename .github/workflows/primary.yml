@@ -44,7 +44,7 @@ jobs:
             export PATH=\$PATH:/usr/local/go/bin:\$GOPATH/bin &&
             export GOPROXY=https://proxy.golang.org,direct &&
             go version &&
-            GOOS=linux GOARCH=amd64 go build -o bootstrap .
+            GOOS=linux GOARCH=amd64 go build -buildvcs=false -o bootstrap .
           "
 
       - name: Upload Lambda artifact
