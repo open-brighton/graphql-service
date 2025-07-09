@@ -28,8 +28,6 @@ go.work
 graph/generated.go
 graph/model/models_gen.go
 
-gqlgen.yml
-
 # IDE/editor files
 .idea/
 .vscode/
