@@ -76,3 +76,10 @@ Resources:
           - '{{resolve:ssm:${ApiGatewayIdSSMPath}}}'
           - { ApiGatewayIdSSMPath: { Ref: ApiGatewayIdSSMPath } }
       StageName: !Ref StageName
+
+Outputs:
+  ResolvedApiGatewayId:
+    Value:
+      Fn::Sub:
+        - '{{resolve:ssm:${ApiGatewayIdSSMPath}}}'
+        - { ApiGatewayIdSSMPath: { Ref: ApiGatewayIdSSMPath } }
