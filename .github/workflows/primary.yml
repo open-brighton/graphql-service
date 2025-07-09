@@ -35,9 +35,16 @@ jobs:
       - name: Generate GraphQL code
         run: go run github.com/99designs/gqlgen generate
 
-      - name: Build Linux binary for Lambda
+      - name: Build Linux binary for Lambda in Amazon Linux 2
         run: |
-          GOOS=linux GOARCH=amd64 go build -o bootstrap .
+          docker run --rm -v "$PWD":/go/src/app -w /go/src/app amazonlinux:2 /bin/bash -c "
+            yum install -y golang &&
+            export GO111MODULE=on &&
+            export GOPATH=/go &&
+            export PATH=\$PATH:/usr/local/go/bin:\$GOPATH/bin &&
+            go version &&
+            GOOS=linux GOARCH=amd64 go build -o bootstrap .
+          "
 
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
