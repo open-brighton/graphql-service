@@ -42,6 +42,7 @@ jobs:
             export GO111MODULE=on &&
             export GOPATH=/go &&
             export PATH=\$PATH:/usr/local/go/bin:\$GOPATH/bin &&
+            export GOPROXY=https://proxy.golang.org,direct &&
             go version &&
             GOOS=linux GOARCH=amd64 go build -o bootstrap .
           "
