@@ -1,0 +1,21 @@
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+}
+
+type Query {
+  whoami: User
+}
+
+input ContactInput {
+  name: String!
+  email: String!
+  message: String!
+}
+
+type Mutation {
+  submitContact(input: ContactInput!): Boolean!
+}
