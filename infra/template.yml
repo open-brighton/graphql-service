@@ -7,7 +7,8 @@ Parameters:
     Description: SSM namespace prefix for API Gateway parameters
 
   ApiGatewayId:
-    Type: String
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /openbrighton/main/api-gateway/id
 
   LambdaS3Bucket:
     Type: String
