@@ -1,51 +1,43 @@
+package main
+
 import (
-	"github.com/[username]/gqlgen-todos/graph" // Replace username with your github username
-	"github.com/gin-gonic/gin"
-	"github.com/vektah/gqlparser/v2/ast"
+	"graphql/graph"
+	"log"
+	"net/http"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
-// Defining the Graphql handler
-func graphqlHandler() gin.HandlerFunc {
-	// NewExecutableSchema and Config are in the generated.go file
-	// Resolver is in the resolver.go file
-	h := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+const defaultPort = "8080"
 
-	// Server setup:
-	h.AddTransport(transport.Options{})
-	h.AddTransport(transport.GET{})
-	h.AddTransport(transport.POST{})
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
 
-	h.SetQueryCache(lru.New[*ast.QueryDocument](1000))
+	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
 
-	h.Use(extension.Introspection{})
-	h.Use(extension.AutomaticPersistedQuery{
+	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.GET{})
+	srv.AddTransport(transport.POST{})
+
+	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
+
+	srv.Use(extension.Introspection{})
+	srv.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
 
-	return func(c *gin.Context) {
-		h.ServeHTTP(c.Writer, c.Request)
-	}
-}
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/query", srv)
 
-// Defining the Playground handler
-func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/query")
-
-	return func(c *gin.Context) {
-		h.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-func main() {
-	// Setting up Gin
-	r := gin.Default()
-	r.POST("/query", graphqlHandler())
-	r.GET("/", playgroundHandler())
-	r.Run()
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
