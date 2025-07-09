@@ -6,10 +6,8 @@ Parameters:
     Default: /openbrighton/main
     Description: SSM namespace prefix for API Gateway parameters
 
-  ApiGatewayIdSSMPath:
+  ApiGatewayId:
     Type: String
-    Default: /openbrighton/main/api-gateway/id
-    Description: SSM parameter path for the API Gateway ID
 
   LambdaS3Bucket:
     Type: String
@@ -71,15 +69,5 @@ Resources:
     Type: AWS::ApiGateway::Deployment
     DependsOn: LambdaFunction
     Properties:
-      RestApiId:
-        Fn::Sub:
-          - '{{resolve:ssm:${ApiGatewayIdSSMPath}}}'
-          - { ApiGatewayIdSSMPath: { Ref: ApiGatewayIdSSMPath } }
+      RestApiId: !Ref ApiGatewayId
       StageName: !Ref StageName
-
-Outputs:
-  ResolvedApiGatewayId:
-    Value:
-      Fn::Sub:
-        - '{{resolve:ssm:${ApiGatewayIdSSMPath}}}'
-        - { ApiGatewayIdSSMPath: { Ref: ApiGatewayIdSSMPath } }
