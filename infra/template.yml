@@ -17,6 +17,7 @@ Parameters:
 
   LambdaS3Key:
     Type: String
+    Default: bootstrap
     Description: S3 key for the Lambda deployment package
 
   LambdaHandler:
