@@ -1,0 +1,51 @@
+name: Primary
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23"
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install gqlgen
+        run: go install github.com/99designs/gqlgen@latest
+
+      - name: Generate GraphQL code
+        run: go run github.com/99designs/gqlgen generate
+
+      - name: Build project
+        run: go build ./...
+#   serverless:
+#     uses: fromtheforest-io/github-actions/.github/workflows/serverless.yml@main
+#     if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+#     needs:
+#       - install
+#     with:
+#       env: ${{ needs.context.outputs.env }}
+#     secrets:
+#       SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       AWS_REGION: ${{ secrets.AWS_REGION }}
