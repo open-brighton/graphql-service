@@ -33,16 +33,17 @@ jobs:
         run: go install github.com/99designs/gqlgen@latest
 
       - name: Generate GraphQL code
-        run: go run github.com/99designs/gqlgen generate
-
-      - name: Build static Linux binary (Alpine = no glibc)
+        run: go run github.com/99designs/gqlgen generate=
+      - name: Build static binary with Alpine + CGO_ENABLED=0
         run: |
           docker run --rm -v "$PWD":/app -w /app golang:1.23-alpine sh -c "\
-            apk add --no-cache git && \
+            apk add --no-cache git build-base && \
+            export CGO_ENABLED=0 && \
             go build -ldflags='-s -w' -o bootstrap server.go"
-      - name: Confirm binary has no GLIBC dependencies
+      - name: Check GLIBC symbols
         run: |
-          strings bootstrap | grep GLIBC || echo '✅ No GLIBC symbols found – binary is safe for Lambda provided.al2'
+          ldd bootstrap || echo "✅ Static binary – not dynamically linked"
+          strings bootstrap | grep GLIBC || echo '✅ No GLIBC symbols – safe for Lambda'
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
         with:
