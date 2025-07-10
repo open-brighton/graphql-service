@@ -51,8 +51,8 @@ func playgroundHandler() gin.HandlerFunc {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	r.POST("/query", graphqlHandler())
-	r.GET("/", playgroundHandler())
+	r.POST("/graphql", graphqlHandler())
+	r.GET("/graphql", playgroundHandler())
 	return r
 }
 
@@ -64,7 +64,11 @@ func startLambda() {
 	r := SetupRouter()
 	ginLambda := adapter.New(r)
 	lambda.Start(func(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		return ginLambda.ProxyWithContext(ctx, event)
+		resp, err := ginLambda.ProxyWithContext(ctx, event)
+		if err != nil {
+			log.Printf("Lambda error: %v", err)
+		}
+		return resp, err
 	})
 }
 
