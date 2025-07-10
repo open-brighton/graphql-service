@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gin-gonic/gin"
@@ -58,11 +57,33 @@ func SetupRouter() *gin.Engine {
 	return r
 }
 
-func isRunningInLambda() bool {
-	return os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
-}
+// func isRunningInLambda() bool {
+// 	return os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
+// }
 
-func startLambda() {
+// func startLambda() {
+// 	r := SetupRouter()
+// 	ginLambda := adapter.NewV2(r)
+// 	lambda.Start(func(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+// 		resp, err := ginLambda.ProxyWithContext(ctx, event)
+// 		if err != nil {
+// 			log.Printf("Lambda error: %v", err)
+// 		}
+// 		return resp, err
+// 	})
+// }
+
+// func startLocal() {
+// 	r := SetupRouter()
+// 	log.Println("Starting local server on http://localhost:8080")
+// 	if err := r.Run(":8080"); err != nil {
+// 		log.Fatal("Failed to start local server:", err)
+// 	}
+// }
+
+func main() {
+	println(">>>>>>>>>>>>>>>>")
+
 	r := SetupRouter()
 	ginLambda := adapter.NewV2(r)
 	lambda.Start(func(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
@@ -72,25 +93,14 @@ func startLambda() {
 		}
 		return resp, err
 	})
-}
+	// log.Println("Dumping environment variables:")
+	// for _, env := range os.Environ() {
+	// 	log.Println(env)
+	// }
 
-func startLocal() {
-	r := SetupRouter()
-	log.Println("Starting local server on http://localhost:8080")
-	if err := r.Run(":8080"); err != nil {
-		log.Fatal("Failed to start local server:", err)
-	}
-}
-
-func main() {
-	log.Println("Dumping environment variables:")
-	for _, env := range os.Environ() {
-		log.Println(env)
-	}
-
-	if isRunningInLambda() {
-		startLambda()
-	} else {
-		startLocal()
-	}
+	// if isRunningInLambda() {
+	// 	startLambda()
+	// } else {
+	// 	startLocal()
+	// }
 }
