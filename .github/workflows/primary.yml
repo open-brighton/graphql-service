@@ -37,15 +37,14 @@ jobs:
 
       - name: Build static Linux binary for Lambda (Amazon Linux 2)
         run: |
-          docker run --rm -v "$PWD":/go/src/app -w /go/src/app amazonlinux:2 \
-            bash -c "\
-              yum install -y gcc git tar gzip curl make && \
-              curl -LO https://go.dev/dl/go1.23.0.src.tar.gz && \
-              tar -C /usr/local -xzf go1.23.0.src.tar.gz && \
-              cd /usr/local/go/src && ./make.bash && \
-              export PATH=/usr/local/go/bin:$PATH && \
-              cd /go/src/app && \
-              GOOS=linux GOARCH=amd64 CGO_ENABLED=0 /usr/local/go/bin/go build -o bootstrap server.go"
+          docker run --rm -v "$PWD":/app -w /app amazonlinux:2 bash -c "\
+            yum install -y curl tar gzip && \
+            curl -LO https://go.dev/dl/go1.23.0.linux-amd64.tar.gz && \
+            tar -C /usr/local -xzf go1.23.0.linux-amd64.tar.gz && \
+            export PATH=/usr/local/go/bin:\$PATH && \
+            export GOOS=linux GOARCH=amd64 CGO_ENABLED=0 && \
+            go version && \
+            go build -o bootstrap server.go"
       - name: Inspect binary
         run: |
           file bootstrap
