@@ -55,9 +55,6 @@ func SetupRouter() *gin.Engine {
 	r.POST("/graphql", graphqlHandler())
 	r.GET("/graphql", playgroundHandler())
 
-	r.POST("/", graphqlHandler())
-	r.GET("/", playgroundHandler())
-
 	return r
 }
 
