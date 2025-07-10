@@ -53,8 +53,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "${AWS::StackName}-GraphQLApi"
-      LambdaHandler:
-        Default: bootstrap
+      Handler: bootstrap
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref LambdaS3Bucket
