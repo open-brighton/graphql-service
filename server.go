@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gin-gonic/gin"
@@ -51,39 +52,23 @@ func playgroundHandler() gin.HandlerFunc {
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	r.POST("/", graphqlHandler())
+	r.GET("/", playgroundHandler())
+
 	r.POST("/graphql", graphqlHandler())
 	r.GET("/graphql", playgroundHandler())
+
+	r.POST("/v1/graphql", graphqlHandler())
+	r.GET("/v1/graphql", playgroundHandler())
 
 	return r
 }
 
-// func isRunningInLambda() bool {
-// 	return os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
-// }
+func isRunningInLambda() bool {
+	return os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
+}
 
-// func startLambda() {
-// 	r := SetupRouter()
-// 	ginLambda := adapter.NewV2(r)
-// 	lambda.Start(func(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
-// 		resp, err := ginLambda.ProxyWithContext(ctx, event)
-// 		if err != nil {
-// 			log.Printf("Lambda error: %v", err)
-// 		}
-// 		return resp, err
-// 	})
-// }
-
-// func startLocal() {
-// 	r := SetupRouter()
-// 	log.Println("Starting local server on http://localhost:8080")
-// 	if err := r.Run(":8080"); err != nil {
-// 		log.Fatal("Failed to start local server:", err)
-// 	}
-// }
-
-func main() {
-	println(">>>>>>>>>>>>>>>>")
-
+func startLambda() {
 	r := SetupRouter()
 	ginLambda := adapter.NewV2(r)
 	lambda.Start(func(ctx context.Context, event events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
@@ -93,14 +78,21 @@ func main() {
 		}
 		return resp, err
 	})
-	// log.Println("Dumping environment variables:")
-	// for _, env := range os.Environ() {
-	// 	log.Println(env)
-	// }
+}
 
-	// if isRunningInLambda() {
-	// 	startLambda()
-	// } else {
-	// 	startLocal()
-	// }
+func startLocal() {
+	r := SetupRouter()
+	log.Println("Starting local server on http://localhost:8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal("Failed to start local server:", err)
+	}
+}
+
+func main() {
+	if isRunningInLambda() {
+		log.Println("Starting lambda server")
+		startLambda()
+	} else {
+		startLocal()
+	}
 }
