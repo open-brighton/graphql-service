@@ -93,4 +93,4 @@ jobs:
             --template-file $TEMPLATE \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --parameter-overrides LambdaS3Bucket=$BUCKET_NAME LambdaS3Key=bootstrap-$GIT_HASH.zip
+            --parameter-overrides LambdaS3Bucket=$SOURCE_BUCKET_NAME LambdaS3Key=bootstrap-$GIT_HASH.zip
