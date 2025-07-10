@@ -6,23 +6,15 @@ package graph
 
 import (
 	"context"
-
 	"log"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/ses"
-	"github.com/aws/aws-sdk-go-v2/service/ses/types"
 	model1 "github.com/openbrighton/graphql-service/graph/model"
 )
-
-const CONTACT_EMAIL = "josephcuffney@gmail.com"
-const NO_REPLY_EMAIL = `no-reply@openbrighton.org`
 
 // SubmitContact is the resolver for the submitContact field.
 func (r *mutationResolver) SubmitContact(ctx context.Context, input model1.ContactInput) (bool, error) {
 	templateData := `{"email": "` + input.Email + `", "message": "` + input.Message + `"}`
-	err := sendEmail(ctx, CONTACT_EMAIL, NO_REPLY_EMAIL, "GenericEmail", templateData)
+	err := SendEmail(ctx, CONTACT_EMAIL, NO_REPLY_EMAIL, "GenericEmail", templateData)
 	if err != nil {
 		log.Printf("failed to send email: %v", err)
 		return false, err
@@ -43,21 +35,3 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-func sendEmail(ctx context.Context, to, from, templateName, templateData string) error {
-	cfg, err := config.LoadDefaultConfig(ctx)
-	if err != nil {
-		return err
-	}
-	svc := ses.NewFromConfig(cfg)
-	input := &ses.SendTemplatedEmailInput{
-		Destination: &types.Destination{
-			ToAddresses: []string{to},
-		},
-		Source:       aws.String(from),
-		Template:     aws.String(templateName),
-		TemplateData: aws.String(templateData),
-	}
-	_, err = svc.SendTemplatedEmail(ctx, input)
-	return err
-}
