@@ -42,7 +42,7 @@ func graphqlHandler() gin.HandlerFunc {
 }
 
 func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/query")
+	h := playground.Handler("GraphQL", "/graphql")
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
@@ -91,7 +91,6 @@ func main() {
 		log.Println(env)
 	}
 
-	log.Println("Running Lambda", isRunningInLambda())
 	if isRunningInLambda() {
 		startLambda()
 	} else {
