@@ -58,7 +58,7 @@ Resources:
       Code:
         S3Bucket: !Ref LambdaS3Bucket
         S3Key: !Ref LambdaS3Key
-      Runtime: provided.al2
+      Runtime: provided.al2023
       Timeout: 30
       MemorySize: 256
 
