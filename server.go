@@ -1,9 +1,13 @@
 package main
 
 import (
-	"graphql/graph"
+	"context"
+	"log"
+	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/gin-gonic/gin"
+	"github.com/openbrighton/graphql-service/graph"
 	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -11,6 +15,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/aws/aws-lambda-go/events"
+	adapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 )
 
 // Defining the Graphql handler
@@ -45,10 +51,38 @@ func playgroundHandler() gin.HandlerFunc {
 	}
 }
 
-func main() {
+func SetupRouter() *gin.Engine {
 	// Setting up Gin
 	r := gin.Default()
 	r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())
-	r.Run()
+	return r
+}
+
+func main() {
+	if isRunningInLambda() {
+		startLambda()
+	} else {
+		startLocal()
+	}
+}
+
+func isRunningInLambda() bool {
+	return os.Getenv("AWS_LAMBDA_FUNCTION_NAME") != ""
+}
+
+func startLambda() {
+	r := SetupRouter()
+	ginLambda := adapter.New(r)
+	lambda.Start(func(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+		return ginLambda.ProxyWithContext(ctx, event)
+	})
+}
+
+func startLocal() {
+	r := SetupRouter()
+	log.Println("Starting local server on http://localhost:8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal("Failed to start local server:", err)
+	}
 }

@@ -1,4 +1,4 @@
-module graphql
+module github.com/openbrighton/graphql-service
 
 go 1.23.0
 
@@ -6,6 +6,8 @@ toolchain go1.23.11
 
 require (
 	github.com/99designs/gqlgen v0.17.76
+	github.com/aws/aws-lambda-go v1.49.0
+	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/gin-gonic/gin v1.10.1
 	github.com/vektah/gqlparser/v2 v2.5.30
 )
