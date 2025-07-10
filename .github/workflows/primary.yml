@@ -63,11 +63,11 @@ jobs:
         run: |
           echo "STACK_NAME=openbrighton-main-graphql" >> $GITHUB_ENV
           echo "TEMPLATE=./infra/template.yml" >> $GITHUB_ENV
-          echo "BUCKET_NAME=openbrighton-main-graphql-artifacts" >> $GITHUB_ENV
+          echo "SOURCE_BUCKET_NAME=openbrighton-main-graphql-source" >> $GITHUB_ENV
 
       - name: Create S3 bucket (idempotent)
         run: |
-          aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" 2>&1 | grep -v 'BucketAlreadyOwnedByYou'
+          aws s3api create-bucket --bucket "$SOURCE_BUCKET_NAME" --region "$AWS_REGION" 2>&1 | grep -v 'BucketAlreadyOwnedByYou'
 
       - name: Download Lambda artifact
         uses: actions/download-artifact@v4
