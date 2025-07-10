@@ -19,7 +19,6 @@ import (
 	adapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 )
 
-// Defining the Graphql handler
 func graphqlHandler() gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
@@ -42,7 +41,6 @@ func graphqlHandler() gin.HandlerFunc {
 	}
 }
 
-// Defining the Playground handler
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
 
@@ -52,19 +50,10 @@ func playgroundHandler() gin.HandlerFunc {
 }
 
 func SetupRouter() *gin.Engine {
-	// Setting up Gin
 	r := gin.Default()
 	r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())
 	return r
-}
-
-func main() {
-	if isRunningInLambda() {
-		startLambda()
-	} else {
-		startLocal()
-	}
 }
 
 func isRunningInLambda() bool {
@@ -84,5 +73,13 @@ func startLocal() {
 	log.Println("Starting local server on http://localhost:8080")
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to start local server:", err)
+	}
+}
+
+func main() {
+	if isRunningInLambda() {
+		startLambda()
+	} else {
+		startLocal()
 	}
 }
