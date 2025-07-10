@@ -77,9 +77,12 @@ jobs:
         run: echo "GIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Zip Lambda binary
         run: zip bootstrap-$GIT_HASH.zip bootstrap
-      - name: Upload Lambda binary to S3
+      - name: Delete old Lambda zips from S3 (keep only latest)
         run: |
-          aws s3 sync . s3://$BUCKET_NAME/ --exclude "*" --include "bootstrap-$GIT_HASH.zip" --delete
+          aws s3 ls s3://$BUCKET_NAME/ | grep bootstrap- | awk '{print $4}' | grep -v "bootstrap-$GIT_HASH.zip" | while read file; do
+            aws s3 rm s3://$BUCKET_NAME/$file
+          done
+
       - name: Validate CloudFormation template
         run: aws cloudformation validate-template --template-body file://$TEMPLATE
 
