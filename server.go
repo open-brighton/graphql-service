@@ -77,13 +77,13 @@ func startLambda() {
 	})
 }
 
-// func startLocal() {
-// 	r := SetupRouter()
-// 	log.Println("Starting local server on http://localhost:8080")
-// 	if err := r.Run(":8080"); err != nil {
-// 		log.Fatal("Failed to start local server:", err)
-// 	}
-// }
+func startLocal() {
+	r := SetupRouter()
+	log.Println("Starting local server on http://localhost:8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatal("Failed to start local server:", err)
+	}
+}
 
 func main() {
 	log.Println("Dumping environment variables:")
@@ -92,9 +92,9 @@ func main() {
 	}
 
 	log.Println("Running Lambda", isRunningInLambda())
-	// if isRunningInLambda() {
-	startLambda()
-	// } else {
-	// 	startLocal()
-	// }
+	if isRunningInLambda() {
+		startLambda()
+	} else {
+		startLocal()
+	}
 }
