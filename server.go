@@ -42,7 +42,7 @@ func graphqlHandler() gin.HandlerFunc {
 }
 
 func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/graphql")
+	h := playground.Handler("GraphQL", "/v1/graphql")
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
@@ -52,12 +52,7 @@ func playgroundHandler() gin.HandlerFunc {
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// r.POST("/", graphqlHandler())
-	// r.GET("/", playgroundHandler())
-
-	// r.POST("/graphql", graphqlHandler())
-	// r.GET("/graphql", playgroundHandler())
-
+	// TODO: figure out why the /v1 is needed here
 	r.POST("/v1/graphql", graphqlHandler())
 	r.GET("/v1/graphql", playgroundHandler())
 
@@ -82,7 +77,7 @@ func startLambda() {
 
 func startLocal() {
 	r := SetupRouter()
-	log.Println("Starting local server on http://localhost:8080")
+	log.Println("Starting local server on http://localhost:8080/v1/graphql")
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to start local server:", err)
 	}
