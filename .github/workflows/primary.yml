@@ -34,9 +34,9 @@ jobs:
 
       - name: Generate GraphQL code
         run: go run github.com/99designs/gqlgen generate=
-      - name: Build Go binary
+      - name: Build Go binary for AWS Lambda provided.al2023
         run: |
-          GOOS=linux GOARCH=amd64 go build -o bootstrap server.go
+          GOOS=linux GOARCH=amd64 go build -ldflags='-s -w' -o bootstrap server.go
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
         with:
