@@ -79,6 +79,13 @@ Resources:
       RouteKey: 'POST /graphql'
       Target: !Join [ '/', [ 'integrations', !Ref LambdaIntegration ] ]
 
+  GraphqlGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiGatewayId
+      RouteKey: 'GET /graphql'
+      Target: !Join [ '/', [ 'integrations', !Ref LambdaIntegration ] ]
+
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
