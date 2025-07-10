@@ -52,7 +52,7 @@ Resources:
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-GraphQLApi"
+      FunctionName: !Sub "${AWS::StackName}"
       Handler: bootstrap
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:

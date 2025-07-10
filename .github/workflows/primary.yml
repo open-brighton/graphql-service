@@ -40,7 +40,7 @@ jobs:
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lambda-binary
+          name: lambda-binary-${{ github.sha }}
           path: bootstrap
 
   deploy:
@@ -72,13 +72,14 @@ jobs:
       - name: Download Lambda artifact
         uses: actions/download-artifact@v4
         with:
-          name: lambda-binary
-
+          name: lambda-binary-${{ github.sha }}
+      - name: Set Git commit hash
+        run: echo "GIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - name: Zip Lambda binary
-        run: zip bootstrap.zip bootstrap
+        run: zip bootstrap-$GIT_HASH.zip bootstrap
       - name: Upload Lambda binary to S3
         run: |
-          aws s3 cp bootstrap.zip s3://$BUCKET_NAME/bootstrap.zip
+          aws s3 cp bootstrap-$GIT_HASH.zip s3://$BUCKET_NAME/bootstrap-$GIT_HASH.zip
 
       - name: Validate CloudFormation template
         run: aws cloudformation validate-template --template-body file://$TEMPLATE
@@ -89,4 +90,4 @@ jobs:
             --template-file $TEMPLATE \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
-            --parameter-overrides LambdaS3Bucket=$BUCKET_NAME LambdaS3Key=bootstrap.zip
+            --parameter-overrides LambdaS3Bucket=$BUCKET_NAME LambdaS3Key=bootstrap-$GIT_HASH.zip
