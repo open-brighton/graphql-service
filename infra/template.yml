@@ -62,9 +62,26 @@ Resources:
       Timeout: 30
       MemorySize: 256
 
-  ApiGatewayLambdaIntegration:
-    Type: AWS::ApiGateway::Deployment
-    DependsOn: LambdaFunction
+  LambdaIntegration:
+    Type: AWS::ApiGatewayV2::Integration
     Properties:
-      RestApiId: !Ref ApiGatewayId
-      StageName: !Ref StageName
+      ApiId: !Ref ApiGatewayId
+      IntegrationType: AWS_PROXY
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+      IntegrationUri: !Sub >-
+        arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations
+
+  GraphqlPostRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref ApiGatewayId
+      RouteKey: 'POST /graphql'
+      Target: !Join [ '/', [ 'integrations', !Ref LambdaIntegration ] ]
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
