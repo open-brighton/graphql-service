@@ -10,12 +10,12 @@ type Query {
   whoami: User
 }
 
-input ContactInput {
+input SubmitContactInput {
   name: String!
   email: String!
   message: String!
 }
 
 type Mutation {
-  submitContact(input: ContactInput!): Boolean!
+  submitContact(input: SubmitContactInput!): Boolean!
 }
