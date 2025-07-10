@@ -20,11 +20,6 @@ Parameters:
     Default: bootstrap
     Description: S3 key for the Lambda deployment package
 
-  LambdaHandler:
-    Type: String
-    Default: main
-    Description: Lambda handler (for Go, usually 'main')
-
   StageName:
     Type: String
     Default: v1
@@ -58,7 +53,8 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "${AWS::StackName}-GraphQLApi"
-      Handler: !Ref LambdaHandler
+      LambdaHandler:
+        Default: bootstrap
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: !Ref LambdaS3Bucket
