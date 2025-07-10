@@ -35,10 +35,10 @@ jobs:
       - name: Generate GraphQL code
         run: go run github.com/99designs/gqlgen generate
 
-      - name: Build Linux binary for Lambda (Amazon Linux 2)
+      - name: Build static Linux binary for Lambda
         run: |
-          docker run --rm -v "$PWD":/go/src/app -w /go/src/app amazonlinux:2 \
-            /bin/bash -c "yum install -y golang && GOOS=linux GOARCH=amd64 go build -o bootstrap server.go"
+          docker run --rm -v "$PWD":/go/src/app -w /go/src/app golang:1.23 \
+            /bin/sh -c 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap server.go'
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
         with:
