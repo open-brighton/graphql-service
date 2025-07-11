@@ -2,7 +2,6 @@ package graph
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -30,17 +29,9 @@ func SendEmail(ctx context.Context, to, from, templateName, templateData string)
 		ConfigurationSetName: aws.String("send-logs"), // enables logging
 
 	}
-	resp, err := svc.SendTemplatedEmail(ctx, input)
+	_, err = svc.SendTemplatedEmail(ctx, input)
 	if err != nil {
 		log.Printf("Error sending email: %v", err)
-	} else {
-		pretty, err := json.MarshalIndent(resp, "", "  ")
-		if err != nil {
-			log.Printf("Error marshalling response: %v", err)
-		} else {
-			log.Printf("SendTemplatedEmail response:\n%s", pretty)
-		}
 	}
-
 	return err
 }
