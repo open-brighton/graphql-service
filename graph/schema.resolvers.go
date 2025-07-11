@@ -13,8 +13,8 @@ import (
 
 // SubmitContact is the resolver for the submitContact field.
 func (r *mutationResolver) SubmitContact(ctx context.Context, input model1.SubmitContactInput) (bool, error) {
-	templateData := `{"email": "` + input.Email + `", "message": "` + input.Message + `"}`
-	err := SendEmail(ctx, CONTACT_EMAIL, NO_REPLY_EMAIL, "GenericEmail", templateData)
+	templateData := `{"name": "` + input.Name + `", "email": "` + input.Email + `", "message": "` + input.Message + `"}`
+	err := SendEmail(ctx, CONTACT_EMAIL, NO_REPLY_EMAIL, "contact", templateData)
 	if err != nil {
 		log.Printf("failed to send email: %v", err)
 		return false, err
