@@ -60,6 +60,7 @@ Resources:
                 Resource:
                   - arn:aws:ses:us-east-1:255964265911:identity/openbrighton.org
                   - arn:aws:ses:us-east-1:255964265911:template/*
+                  - arn:aws:ses:us-east-1:255964265911:configuration-set/send-logs
 
   LambdaFunction:
     Type: AWS::Lambda::Function
