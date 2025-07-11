@@ -48,6 +48,18 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:*
+        - PolicyName: LambdaSESSendTemplatedEmail
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendTemplatedEmail
+                  - ses:GetTemplate
+                  - ses:SendEmail
+                Resource:
+                  - arn:aws:ses:us-east-1:255964265911:identity/openbrighton.org
+                  - arn:aws:ses:us-east-1:255964265911:template/*
 
   LambdaFunction:
     Type: AWS::Lambda::Function
