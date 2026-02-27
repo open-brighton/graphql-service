@@ -74,6 +74,9 @@ Resources:
       Runtime: provided.al2023
       Timeout: 30
       MemorySize: 256
+      Environment:
+        Variables:
+          ANTHROPIC_API_KEY: "{{resolve:ssm:/openbrighton/main/anthropic/api-key}}"
 
   LambdaIntegration:
     Type: AWS::ApiGatewayV2::Integration

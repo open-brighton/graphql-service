@@ -22,6 +22,11 @@ func (r *mutationResolver) SubmitContact(ctx context.Context, input model1.Submi
 	return true, nil
 }
 
+// Chat is the resolver for the chat field.
+func (r *mutationResolver) Chat(ctx context.Context, input model1.ChatInput) (string, error) {
+	return CallClaude(ctx, input.Messages)
+}
+
 // Whoami is the resolver for the whoami field.
 func (r *queryResolver) Whoami(ctx context.Context) (*model1.User, error) {
 	return nil, nil

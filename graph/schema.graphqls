@@ -16,6 +16,21 @@ input SubmitContactInput {
   message: String!
 }
 
+enum ChatMessageRole {
+  user
+  assistant
+}
+
+input ChatMessageInput {
+  role: ChatMessageRole!
+  content: String!
+}
+
+input ChatInput {
+  messages: [ChatMessageInput!]!
+}
+
 type Mutation {
   submitContact(input: SubmitContactInput!): Boolean!
+  chat(input: ChatInput!): String!
 }
