@@ -14,7 +14,7 @@ import (
 
 const anthropicAPIURL = "https://api.anthropic.com/v1/messages"
 const anthropicVersion = "2023-06-01"
-const claudeModel = "claude-3-5-haiku-20241022"
+const claudeModel = "claude-3-haiku-20240307"
 
 const systemPrompt = `You are a helpful assistant for OpenBrighton, a community organisation based in Brighton, UK. 
 OpenBrighton runs events, workshops, and initiatives that bring together the local tech, creative, and civic communities.
