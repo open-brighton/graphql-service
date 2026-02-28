@@ -53,6 +53,7 @@ type FeedItem implements Node {
   description: String!
   category: FeedItemCategory!
   date: String!
+  imageUrl: String
 }
 
 type Event implements Node {
@@ -62,6 +63,7 @@ type Event implements Node {
   date: String!
   location: String!
   category: EventCategory!
+  imageUrl: String
 }
 
 type Business implements Node {
@@ -74,6 +76,7 @@ type Business implements Node {
   longitude: Float!
   latitude: Float!
   accentColor: String!
+  imageUrl: String
 }
 
 # ─── Relay pagination ────────────────────────────────────────────────────────
