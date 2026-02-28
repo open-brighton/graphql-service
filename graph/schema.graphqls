@@ -2,13 +2,120 @@ interface Node {
   id: ID!
 }
 
+# ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum FeedItemCategory {
+  COMMUNITY_EVENT
+  ANNOUNCEMENT
+  NEWS
+  ALERT
+}
+
+enum EventCategory {
+  COMMUNITY
+  ARTS
+  SPORTS
+  FOOD
+  ENVIRONMENT
+  POLITICS
+}
+
+enum BusinessCategory {
+  BAKERY
+  CAFE
+  RESTAURANT
+  MUSEUM
+  RETAIL
+  HEALTH_FOOD
+  VINTAGE
+  CHOCOLATIER
+}
+
+enum DonateSubscriptionInterval {
+  MONTHLY
+  YEARLY
+}
+
+enum ChatMessageRole {
+  user
+  assistant
+}
+
+# ─── Core types ──────────────────────────────────────────────────────────────
+
 type User implements Node {
   id: ID!
 }
 
-type Query {
-  whoami: User
+type FeedItem implements Node {
+  id: ID!
+  title: String!
+  description: String!
+  category: FeedItemCategory!
+  date: String!
 }
+
+type Event implements Node {
+  id: ID!
+  title: String!
+  description: String!
+  date: String!
+  location: String!
+  category: EventCategory!
+}
+
+type Business implements Node {
+  id: ID!
+  slug: String!
+  name: String!
+  category: BusinessCategory!
+  address: String!
+  description: String!
+  longitude: Float!
+  latitude: Float!
+  accentColor: String!
+}
+
+# ─── Relay pagination ────────────────────────────────────────────────────────
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type FeedItemEdge {
+  cursor: String!
+  node: FeedItem!
+}
+
+type EventEdge {
+  cursor: String!
+  node: Event!
+}
+
+type BusinessEdge {
+  cursor: String!
+  node: Business!
+}
+
+type FeedItemConnection {
+  edges: [FeedItemEdge!]!
+  pageInfo: PageInfo!
+}
+
+type EventConnection {
+  edges: [EventEdge!]!
+  pageInfo: PageInfo!
+}
+
+type BusinessConnection {
+  edges: [BusinessEdge!]!
+  pageInfo: PageInfo!
+}
+
+# ─── Inputs ──────────────────────────────────────────────────────────────────
 
 input SubmitContactInput {
   name: String!
@@ -16,9 +123,25 @@ input SubmitContactInput {
   message: String!
 }
 
-enum ChatMessageRole {
-  user
-  assistant
+input SubmitFeedbackInput {
+  email: String!
+  category: String!
+  message: String!
+}
+
+input CreateDonatePaymentIntentInput {
+  amount: Float!
+  currency: String!
+  email: String
+  name: String
+}
+
+input CreateDonateSubscriptionInput {
+  amount: Float!
+  currency: String!
+  interval: DonateSubscriptionInterval!
+  email: String
+  name: String
 }
 
 input ChatMessageInput {
@@ -30,7 +153,28 @@ input ChatInput {
   messages: [ChatMessageInput!]!
 }
 
+# ─── Result types ─────────────────────────────────────────────────────────────
+
+type PaymentIntentResult {
+  clientSecret: String!
+}
+
+# ─── Query ───────────────────────────────────────────────────────────────────
+
+type Query {
+  whoami: User
+  feed(first: Int, after: String, category: [FeedItemCategory!]): FeedItemConnection!
+  events(first: Int, after: String, category: [EventCategory!]): EventConnection!
+  businesses(first: Int, after: String, category: [BusinessCategory!]): BusinessConnection!
+  business(slug: String!): Business
+}
+
+# ─── Mutation ────────────────────────────────────────────────────────────────
+
 type Mutation {
   submitContact(input: SubmitContactInput!): Boolean!
+  submitFeedback(input: SubmitFeedbackInput!): Boolean!
+  createDonatePaymentIntent(input: CreateDonatePaymentIntentInput!): PaymentIntentResult!
+  createDonateSubscription(input: CreateDonateSubscriptionInput!): PaymentIntentResult!
   chat(input: ChatInput!): String!
 }
