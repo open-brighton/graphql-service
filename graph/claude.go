@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -39,8 +40,9 @@ type anthropicContentBlock struct {
 }
 
 type anthropicResponse struct {
-	Content []anthropicContentBlock `json:"content"`
-	Error   *struct {
+	Content    []anthropicContentBlock `json:"content"`
+	StopReason string                  `json:"stop_reason"`
+	Error      *struct {
 		Type    string `json:"type"`
 		Message string `json:"message"`
 	} `json:"error,omitempty"`
@@ -94,6 +96,11 @@ func CallClaude(ctx context.Context, messages []*model.ChatMessageInput) (string
 		return "", fmt.Errorf("failed to read response body: %w", err)
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Anthropic API non-200 status %d: %s", resp.StatusCode, string(respBytes))
+		return "", fmt.Errorf("Anthropic API returned status %d", resp.StatusCode)
+	}
+
 	var anthropicResp anthropicResponse
 	if err := json.Unmarshal(respBytes, &anthropicResp); err != nil {
 		return "", fmt.Errorf("failed to parse response: %w", err)
@@ -104,6 +111,7 @@ func CallClaude(ctx context.Context, messages []*model.ChatMessageInput) (string
 	}
 
 	if len(anthropicResp.Content) == 0 {
+		log.Printf("Anthropic API empty content (stop_reason=%s): %s", anthropicResp.StopReason, string(respBytes))
 		return "", fmt.Errorf("empty response from Anthropic API")
 	}
 
