@@ -164,12 +164,19 @@ type PaymentIntentResult {
 
 # ─── Query ───────────────────────────────────────────────────────────────────
 
+type AddressValidation {
+  valid: Boolean!
+  normalizedAddress: String
+  message: String
+}
+
 type Query {
   whoami: User
   feed(first: Int, after: String, category: [FeedItemCategory!]): FeedItemConnection!
   events(first: Int, after: String, category: [EventCategory!]): EventConnection!
   businesses(first: Int, after: String, category: [BusinessCategory!]): BusinessConnection!
   business(slug: String!): Business
+  validateAddress(address: String!): AddressValidation!
 }
 
 # ─── Mutation ────────────────────────────────────────────────────────────────

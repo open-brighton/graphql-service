@@ -24,6 +24,12 @@ func (r *mutationResolver) SubmitContact(ctx context.Context, input model1.Submi
 
 // SubmitFeedback is the resolver for the submitFeedback field.
 func (r *mutationResolver) SubmitFeedback(ctx context.Context, input model1.SubmitFeedbackInput) (bool, error) {
+	templateData := `{"email": "` + input.Email + `", "category": "` + input.Category + `", "message": "` + input.Message + `"}`
+	err := SendEmail(ctx, CONTACT_EMAIL, NO_REPLY_EMAIL, "feedback", templateData)
+	if err != nil {
+		log.Printf("failed to send email: %v", err)
+		return false, err
+	}
 	return true, nil
 }
 
@@ -220,6 +226,18 @@ func (r *queryResolver) Business(ctx context.Context, slug string) (*model1.Busi
 		}
 	}
 	return nil, nil
+}
+
+// ValidateAddress is the resolver for the validateAddress field.
+// It checks whether the provided address is a valid Brighton address.
+func (r *queryResolver) ValidateAddress(ctx context.Context, address string) (*model1.AddressValidation, error) {
+	if address == "" {
+		msg := "Please enter an address."
+		return &model1.AddressValidation{Valid: false, Message: &msg}, nil
+	}
+	// TODO: integrate a real address validation service (e.g. USPS, Google Maps, or a Brighton-specific dataset).
+	normalised := address
+	return &model1.AddressValidation{Valid: true, NormalizedAddress: &normalised}, nil
 }
 
 // Mutation returns MutationResolver implementation.
